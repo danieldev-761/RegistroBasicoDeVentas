@@ -1,5 +1,7 @@
 clientes= []
 productos= []
+subordenes= []
+ordenes= []
 
 def registroVentas():
     
@@ -20,7 +22,7 @@ def registroVentas():
 
         ''')
         try:
-            opcion= int(input("Ingrese una opci´on del menú de opciones (1, 2, 3, 4, 5): "))
+            opcion= int(input("Ingrese una opción del menú de opciones (1, 2, 3, 4, 5): "))
 
             if 0<opcion<=5:
 
@@ -47,13 +49,14 @@ def registroVentas():
                         }
 
                         productos.append(producto)
+                        id_actual+=1
 
                         print("Producto registrado exitosamente.")
                         
 
                     case 2:
                         
-                        print("Cargando Módulo de Registro de Venta")
+                        print("Cargando Módulo de Registro de Venta...")
                         
 
                         nombre_cliente= str(input("Ingrese nombre del cliente: "))
@@ -69,19 +72,78 @@ def registroVentas():
                         }
                         
                         clientes.append(cliente)
+                        id_actual+=1
 
                         print("Cliente registrado exitosamente.")
 
                         productos_existentes= productos.copy()
 
                         cargar_productos()
-                    
+
+                        numero_productos= int(input(f"Bienvenido, {nombre_cliente}. ¿Cuántos productos desea comprar? "))
+                        
+                        if 0<numero_productos<=len(productos_existentes):
+
+
+                            for i in range(numero_productos):
+
+                                producto_deseado= int(input(f"Muy bien, {nombre_cliente}. ¿Qué producto(s) desea de la lista? Por favor ingrese el ID de dicho producto: "))
+
+                                
+                                cantidad_producto= int(input("Por favor ingrese la cantidad de dicho producto: "))
+
+                                producto_encontrado= buscar_producto(producto_deseado)
+
+                                if producto_encontrado:
+                                    print(f"Producto encontrado: {producto_encontrado['nombre']}")
+
+                                    suborden={
+                                    "id": id_actual,
+                                    "nombre_cliente": nombre_cliente,
+                                    "producto": producto_encontrado['nombre'],
+                                    "cantidad": cantidad_producto,
+                                    "subtotal": producto_encontrado['precio'] * cantidad_producto
+                                    
+                                    }
+                                
+                                else:
+                                    print("Producto no encontrado.")
+                                
+                                subordenes.append(suborden)
+                                id_actual+=1
+
+                            print(''' ID |  NOMBRE CLIENTE  |   PRODUCTO   |  CANTIDAD   ''')
+
+                            for i in range(len(subordenes)):
+                                suborden = subordenes[i]
+
+                            
+                                print(f"  {suborden['id']}  | {suborden['nombre_cliente']} |    {suborden['producto']} |    {suborden['cantidad']} |    {suborden['subtotal']}")
+                            print("--------------------------------------------------")
+
+                            
+                            orden={
+                            "id": id_actual,
+                            "nombre_cliente": nombre_cliente,
+                            "subordenes": subordenes,
+                            "total": sum(suborden['subtotal'] for suborden in subordenes)
+                            }
+                        
+                            ordenes.append(orden)
+                            id_actual+=1
+
+                            print("Orden registrada exitosamente. Generando resumen de compra...")
+
+                            
+
+                        generar_resumen_de_venta(subordenes)
+
+
 
                     case 3:
                         cargar_clientes()
 
                     case 4:
-                        print("Cargando Lista de Productos")
                         cargar_productos()
                         
 
@@ -95,7 +157,7 @@ def registroVentas():
             print("Error: Campos con valores erróneos")
 
 
-            
+
 
 def cargar_productos():
     print("Cargando lista de productos existentes...")
@@ -117,4 +179,22 @@ def cargar_clientes():
 
     for client in clientes:
         print(f"  {client['id']}  | {client['nombre']} |    {client['documento_identidad']} |    {client['membresia_vip']}")
+    print("--------------------------------------------------")
+
+
+def buscar_producto(id_producto):
+    for producto in productos:
+        if producto["id"] == id_producto:
+            return producto
+    return None
+
+def generar_resumen_de_venta(subordenes):
+    print("--------------- RESUMEN DE COMPRA ---------------\n")
+    print("NO.  | NOMBRE CLIENTE | PRODUCTO | CANTIDAD | PRECIO TOTAL")
+    print("--------------------------------------------------")
+
+    for suborden in subordenes:
+        print(f"  {suborden['id']}  | {suborden['nombre_cliente']} |    {suborden['producto']} |    {suborden['cantidad']} |    {suborden['subtotal']}")
+        print(f'''                                                                                                         COSTO TOTAL | {sum(suborden['subtotal'] for suborden in subordenes)}''')
+    
     print("--------------------------------------------------")
