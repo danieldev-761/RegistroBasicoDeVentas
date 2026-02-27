@@ -135,6 +135,9 @@ def registroVentas():
 
                             print("Orden registrada exitosamente. Generando resumen de compra...")
 
+                        else:
+                            print("Error. Imposible realizar operación")
+
                             
 
                         generar_resumen_de_venta(subordenes)
@@ -198,17 +201,20 @@ def generar_resumen_de_venta(subordenes):
 
     for suborden in subordenes:
         print(f"  {suborden['id']}  | {suborden['nombre_cliente']} |    {suborden['producto']} |    {suborden['cantidad']} |    {suborden['subtotal']}")
-        print(f'''                                                                                                         COSTO TOTAL SIN DESCUENTO | {total_compra}''')                                                                                                                       
-    
-    if clientes["membresia_vip"] == True:
-        print(f'''                                                                                                         VALOR DEL DESCUENTO | {total_compra * 0.10}
-                                                                                                                           COSTO TOTAL CON DESCUENTO | {total_compra - (total_compra * 0.10)}''')
+ 
+
+    print(f'''                                                                                                         COSTO TOTAL SIN DESCUENTO | {total_compra}''')
+
+    vip = False
+    if subordenes:
+        vip = bool(subordenes[0].get("membresia_vip", False))
+
+    if vip:
+        descuento = total_compra * 0.10
+        print(f'''                                                                                                         VALOR DEL DESCUENTO | {descuento}
+                                                                                                                           COSTO TOTAL CON DESCUENTO | {total_compra - descuento}''')
     else:
         print(f'''                                                                                                         VALOR DEL DESCUENTO | N/A''')
         print(f'''                                                                                                         COSTO TOTAL CON DESCUENTO | {total_compra}''')
 
     print("--------------------------------------------------")
-
-
-
-registroVentas()
